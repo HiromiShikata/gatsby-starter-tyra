@@ -1,0 +1,21 @@
+name: CI
+
+on:
+  push:
+    branches: [master, add-hardened-npmrc]
+  pull_request:
+    branches: [master]
+
+jobs:
+  validate-npmrc:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify .npmrc exists and contains required settings
+        run: |
+          test -f .npmrc || (echo ".npmrc not found" && exit 1)
+          grep -q "min-release-age=7" .npmrc || (echo "min-release-age=7 missing" && exit 1)
+          grep -q "ignore-scripts=true" .npmrc || (echo "ignore-scripts=true missing" && exit 1)
+          grep -q "save-exact=true" .npmrc || (echo "save-exact=true missing" && exit 1)
+          grep -q "package-lock=true" .npmrc || (echo "package-lock=true missing" && exit 1)
+          echo "All .npmrc hardening settings verified"
